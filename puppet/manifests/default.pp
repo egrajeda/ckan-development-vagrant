@@ -32,7 +32,7 @@ file { '/etc/solr/conf/schema.xml':
 }
 
 exec { "ckan-pip-requirements":
-    command => "/usr/bin/pip install -r /ckan/requirements.txt -r /ckan/dev-requirements.txt",
+    command => "/usr/bin/pip install --upgrade -r /ckan/requirements.txt -r /ckan/dev-requirements.txt",
     require => Package["python-pip"]
 }
 
@@ -50,7 +50,7 @@ package { ["build-essential", "python-lxml", "libxslt1-dev", "libxml2-dev"]:
 }
 
 exec { "ckan-datapusher-pip-requirements":
-    command => "/usr/bin/pip install -r /ckan-datapusher/requirements.txt",
+    command => "/usr/bin/pip install --upgrade -r /ckan-datapusher/requirements.txt",
     require => Package["python-pip"]
 }
 
