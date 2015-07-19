@@ -5,7 +5,7 @@ class { 'postgresql::server':
     ip_mask_allow_all_users => '0.0.0.0/0'
 }
 
-postgresql::server::db { ['ckan_default', 'datastore_default']:
+postgresql::server::db { ['ckan_default', 'datastore_default', 'ckan_test', 'datastore_test']:
     user     => 'ckan_default',
     password => postgresql_password('ckan_default', 'test1234')
 }
@@ -14,7 +14,7 @@ postgresql::server::role { 'datastore_default':
     password_hash => postgresql_password('datastore_default', 'test1234')
 }
 
-postgresql::server::database_grant { 'datastore_default':
+postgresql::server::database_grant { ['datastore_default', 'datastore_test']:
     privilege => 'ALL',
     db        => 'datastore_default',
     role      => 'datastore_default'
