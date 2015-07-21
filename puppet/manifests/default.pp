@@ -20,7 +20,7 @@ postgresql::server::database_grant { ['datastore_default', 'datastore_test']:
     role      => 'datastore_default'
 }
 
-package { ["python-dev", "python-pip", "libpq-dev", "solr-tomcat"]:
+package { ["build-essential", "python-dev", "python-pip", "libpq-dev", "solr-tomcat"]:
     ensure  => "installed",
     require => Exec["apt_update"]
 }
@@ -32,7 +32,7 @@ file { '/etc/solr/conf/schema.xml':
 }
 
 exec { "ckan-pip-requirements":
-    command => "/usr/bin/pip install --upgrade -r /ckan/requirements.txt -r /ckan/dev-requirements.txt",
+    command => "/usr/local/bin/pip install --retries 100 -r /ckan/requirements.txt -r /ckan/dev-requirements.txt",
     require => Package["python-pip"]
 }
 
@@ -44,13 +44,13 @@ exec { "ckan-setup":
 
 # TODO: DataStore set-permissions
 
-package { ["build-essential", "python-lxml", "libxslt1-dev", "libxml2-dev"]:
+package { ["python-lxml"]:
     ensure  => "installed",
     require => Exec["apt_update"]
 }
 
 exec { "ckan-datapusher-pip-requirements":
-    command => "/usr/bin/pip install --upgrade -r /ckan-datapusher/requirements.txt",
+    command => "/usr/local/bin/pip install --retries 100 -r /ckan-datapusher/requirements.txt",
     require => Package["python-pip"]
 }
 
