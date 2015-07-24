@@ -32,7 +32,9 @@ file { '/etc/solr/conf/schema.xml':
 }
 
 exec { "ckan-pip-requirements":
-    command => "/usr/local/bin/pip install --retries 100 -r /ckan/requirements.txt -r /ckan/dev-requirements.txt",
+    command => "/usr/bin/pip install -r /ckan/requirements.txt -r /ckan/dev-requirements.txt",
+    timeout => 1800,
+    tries   => 5,
     require => Package["python-pip"]
 }
 
@@ -50,7 +52,9 @@ package { ["python-lxml"]:
 }
 
 exec { "ckan-datapusher-pip-requirements":
-    command => "/usr/local/bin/pip install --retries 100 -r /ckan-datapusher/requirements.txt",
+    command => "/usr/bin/pip install -r /ckan-datapusher/requirements.txt",
+    timeout => 1800,
+    tries   => 5,
     require => Package["python-pip"]
 }
 
