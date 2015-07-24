@@ -44,7 +44,22 @@ exec { "ckan-setup":
     require => Exec["ckan-pip-requirements"]
 }
 
-# TODO: DataStore set-permissions
+exec { "ckan-database-setup":
+    command => "/usr/local/bin/paster db init -c development.ini",
+    cwd     => "/ckan",
+    require => Exec["ckan-pip-requirements"]
+}
+
+exec { "ckan-datastore-permissions-sql":
+    command => "/usr/local/bin/paster datastore set-permissions > /tmp/datastore-permissions.sql",
+    cwd     => "/ckan",
+    require => Exec["ckan-pip-requirements"]
+}
+
+postgresql_psql { "ckan-datastore-set-permissions":
+    command => "\\i datastore-permissions.sql",
+    require => Exec["ckan-datastore-permissions-sql"]
+}
 
 package { ["python-lxml"]:
     ensure  => "installed",
