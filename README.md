@@ -44,4 +44,3 @@ Vagrant setup to run a CKAN VM for development.
 ## TODO
 
 1. Add a default `development.ini` and `test-core.ini` file.
-2. Add the steps to configure the DataStore permissions.

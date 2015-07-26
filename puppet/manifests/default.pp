@@ -1,5 +1,10 @@
 include apt
 
+package { ["build-essential", "python-dev", "python-pip", "libpq-dev", "solr-tomcat"]:
+    ensure  => "installed",
+    require => Exec["apt_update"]
+}
+
 class { 'postgresql::server':
     listen_addresses        => '*',
     ip_mask_allow_all_users => '0.0.0.0/0'
@@ -18,11 +23,6 @@ postgresql::server::database_grant { ['datastore_default', 'datastore_test']:
     privilege => 'ALL',
     db        => 'datastore_default',
     role      => 'datastore_default'
-}
-
-package { ["build-essential", "python-dev", "python-pip", "libpq-dev", "solr-tomcat"]:
-    ensure  => "installed",
-    require => Exec["apt_update"]
 }
 
 file { '/etc/solr/conf/schema.xml':
@@ -44,23 +44,6 @@ exec { "ckan-setup":
     require => Exec["ckan-pip-requirements"]
 }
 
-exec { "ckan-database-setup":
-    command => "/usr/local/bin/paster db init -c development.ini",
-    cwd     => "/ckan",
-    require => Exec["ckan-pip-requirements"]
-}
-
-exec { "ckan-datastore-permissions-sql":
-    command => "/usr/local/bin/paster datastore set-permissions > /tmp/datastore-permissions.sql",
-    cwd     => "/ckan",
-    require => Exec["ckan-pip-requirements"]
-}
-
-postgresql_psql { "ckan-datastore-set-permissions":
-    command => "\\i datastore-permissions.sql",
-    require => Exec["ckan-datastore-permissions-sql"]
-}
-
 package { ["python-lxml"]:
     ensure  => "installed",
     require => Exec["apt_update"]
@@ -77,4 +60,33 @@ exec { "ckan-datapusher-setup":
     command => "/usr/bin/python setup.py develop",
     cwd     => "/ckan-datapusher",
     require => Exec["ckan-datapusher-pip-requirements"]
+}
+
+class database_setup {
+
+    exec { "ckan-database-setup":
+        command => "/usr/local/bin/paster db init -c development.ini",
+        cwd     => "/ckan",
+        require => Exec["ckan-pip-requirements"]
+    }
+
+    exec { "ckan-datastore-permissions-sql":
+        command => "/usr/local/bin/paster datastore set-permissions > /tmp/datastore-permissions.sql",
+        cwd     => "/ckan",
+        require => Exec["ckan-pip-requirements"]
+    }
+
+    postgresql_psql { "ckan-datastore-set-permissions":
+        command => "\\i datastore-permissions.sql",
+        require => Exec["ckan-datastore-permissions-sql"]
+    }
+
+}
+
+stage { 'post':
+    require => Stage['main']
+}
+
+class { 'database_setup':
+    stage => 'post'
 }
